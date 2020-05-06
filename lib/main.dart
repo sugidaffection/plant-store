@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:plant_store/home.dart';
 import 'package:plant_store/login.dart';
 import 'package:plant_store/profile.dart';
@@ -11,17 +12,15 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-
   bool loggedIn = false;
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: loggedIn ? MainPage() : LoginPage(),
-      routes: {
-        "/profile" : (context) => ProfilePage()
-      },
+      routes: {"/profile": (context) => ProfilePage()},
     );
   }
 }
@@ -32,7 +31,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-
   int currentIndex = 0;
   Widget page = HomePage();
 
@@ -41,35 +39,41 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: page,
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        onTap: (idx) {
-          setState(() {
-            currentIndex = idx;
+          currentIndex: currentIndex,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          onTap: (idx) {
+            setState(() {
+              currentIndex = idx;
 
-            switch (idx) {
-              case 0:
-                page = HomePage();
-                break;
-              case 3:
-                // Navigator.of(context).pushNamed("/profile").then((value){
-                //   currentIndex = 0;
-                // });
+              switch (idx) {
+                case 0:
+                  page = HomePage();
+                  break;
+                case 3:
+                  // Navigator.of(context).pushNamed("/profile").then((value){
+                  //   currentIndex = 0;
+                  // });
                   page = ProfilePage();
-                break;
-              default:
-            }
-          });
-        },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("Home"),),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), title: Text("Whislist")),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_basket), title: Text("Cart")),
-          BottomNavigationBarItem(icon: Icon(Icons.person), title: Text("Profile")),
-      ]),
+                  break;
+                default:
+              }
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              title: Text("Home"),
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.favorite), title: Text("Whislist")),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_basket), title: Text("Cart")),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person), title: Text("Profile")),
+          ]),
     );
   }
 }
