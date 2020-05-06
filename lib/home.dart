@@ -1,13 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:plant_store/carousel.dart';
 import 'package:plant_store/rating.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({Key key}) : super(key: key);
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+
+  void logout(){
+      Timer(Duration(milliseconds: 500), (){
+        setState(() {
+          Navigator.of(context).pop();
+        });
+        
+      });
+  }
+
   List<Map<String, String>> itemImage = [
     {
       "image": "assets/images/snake_plant.jpg",
@@ -28,15 +42,38 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            leading: IconButton(
-                icon: Icon(Icons.menu, color: Colors.white), onPressed: null),
-            title: Text("Plant Store"),
-            actions: [
-              IconButton(
-                  icon: Icon(Icons.search, color: Colors.white),
-                  onPressed: null)
-            ]),
+        appBar: AppBar(title: Text("Plant Store"), actions: [
+          IconButton(
+              icon: Icon(Icons.search, color: Colors.white), onPressed: (){
+                Navigator.of(context).pop();
+              })
+        ]),
+        drawer: Drawer(
+          child: Column(
+            children: [
+              Container(
+                color: Theme.of(context).primaryColor,
+                padding: EdgeInsets.all(20),
+                width: double.infinity,
+                child: Center(
+                  child: Column(children: [
+                    Container(
+                        margin: EdgeInsets.only(top: 40),
+                        child: Text("Sugiono")),
+                    OutlineButton(
+                        onPressed: () {
+                          setState(() {
+                            Navigator.of(context).pop();
+                            logout();
+                          });
+                        },
+                        child: Text("Sign Out"))
+                  ]),
+                ),
+              )
+            ],
+          ),
+        ),
         body: SingleChildScrollView(
             child: Column(children: [
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

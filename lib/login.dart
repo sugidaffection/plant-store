@@ -1,31 +1,16 @@
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  @override
-  _LoginPageState createState() => _LoginPageState();
-}
+class LoginPage extends StatelessWidget {
+  const LoginPage({Key key}) : super(key: key);
 
-class _LoginPageState extends State<LoginPage>
-    with SingleTickerProviderStateMixin {
-  AnimationController controller;
-  Animation animation;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    controller =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 100));
-
-    animation = CurvedAnimation(parent: controller, curve: Curves.elasticIn);
+  void auth(TextEditingController email, TextEditingController password) {
+    print("Login");
   }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-
-    return Scaffold(
-        body: Container(
+    return Scaffold(body: Container(
             color: Colors.white,
             child: Stack(children: [
               Container(
@@ -40,12 +25,24 @@ class _LoginPageState extends State<LoginPage>
                   child: Container(
                       alignment: Alignment.bottomCenter,
                       height: size.height,
-                      child: LoginFormCard()))
+                      child: LoginFormCard(onAction: auth)))
             ])));
   }
 }
 
-class LoginFormCard extends StatelessWidget {
+class LoginFormCard extends StatefulWidget {
+  final Function(TextEditingController, TextEditingController) onAction;
+
+  const LoginFormCard({Key key, @required this.onAction}) : super(key: key);
+
+  @override
+  _LoginFormCardState createState() => _LoginFormCardState();
+}
+
+class _LoginFormCardState extends State<LoginFormCard> {
+  final email = TextEditingController();
+  final password = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -76,11 +73,14 @@ class LoginFormCard extends StatelessWidget {
               IconInputField(
                 icon: Icon(Icons.person),
                 placeholder: "Email or Phone Number",
+                controller: email,
               ),
               IconInputField(
                   icon: Icon(Icons.lock),
                   placeholder: "Password",
-                  secureField: true),
+                  secureField: true,
+                  controller: password,
+              ),
               Align(
                   alignment: Alignment.centerRight,
                   child: Text("Forgot your password?")),
@@ -92,7 +92,11 @@ class LoginFormCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4)),
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          Navigator.of(context).pushNamed("/main");
+                        });
+                      },
                       child: Text("Sign In",
                           style: TextStyle(
                               fontSize: 22, fontWeight: FontWeight.w500)))),
@@ -104,7 +108,11 @@ class LoginFormCard extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4)),
                       textColor: Colors.grey.shade600,
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          Navigator.pushReplacementNamed(context, "/register");
+                        });
+                      },
                       child: Text("Sign Up",
                           style: TextStyle(
                               fontSize: 22, fontWeight: FontWeight.w500))))
@@ -118,14 +126,18 @@ class IconInputField extends StatelessWidget {
   final bool secureField;
   final Icon icon;
   final String placeholder;
+  final TextEditingController controller;
 
   const IconInputField(
-      {Key key, this.icon, this.secureField = false, this.placeholder = ""})
+      {Key key, this.icon, this.secureField = false, this.placeholder = "", this.controller})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      autocorrect: false,
+      autovalidate: false,
+      controller: controller,
       obscureText: secureField,
       decoration: InputDecoration(
           prefixIcon: icon,
