@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:plant_store/carousel.dart';
 import 'package:plant_store/rating.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -13,14 +14,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  void logout(){
-      Timer(Duration(milliseconds: 500), (){
-        setState(() {
-          Navigator.of(context).pop();
-        });
-        
-      });
-  }
 
   List<Map<String, String>> itemImage = [
     {
@@ -39,51 +32,46 @@ class _HomePageState extends State<HomePage> {
         AssetImage("assets/images/snake_plant.jpg")),
   ];
 
+  void logout() async{
+    var sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.clear();
+
+    Navigator.of(context).pushReplacementNamed("/");
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text("Plant Store"), actions: [
           IconButton(
-              icon: Icon(Icons.search, color: Colors.white), onPressed: (){
-                Navigator.of(context).pop();
-              })
+              icon: Icon(Icons.search, color: Colors.white),
+              onPressed: logout
+              )
         ]),
         drawer: Drawer(
-          child: Column(
+          child: Padding(padding: EdgeInsets.all(20),
+          child: ListView(
             children: [
-              Container(
-                color: Theme.of(context).primaryColor,
-                padding: EdgeInsets.all(20),
-                width: double.infinity,
-                child: Center(
-                  child: Column(children: [
-                    Container(
-                        margin: EdgeInsets.only(top: 40),
-                        child: Text("Sugiono")),
-                    OutlineButton(
-                        onPressed: () {
-                          setState(() {
-                            Navigator.of(context).pop();
-                            logout();
-                          });
-                        },
-                        child: Text("Sign Out"))
-                  ]),
+              Center(
+                child: Column(
+                  children: [
+                    Text("Sugiono", style: Theme.of(context).textTheme.headline),
+                    Text("1772037@maranatha.ac.id", style: Theme.of(context).textTheme.subhead),
+                  ]
                 ),
-              )
+              ),
+              SizedBox(height: 40),
+              OutlineButton(onPressed: logout, child: Text("Logout"))
             ],
-          ),
+            
+          )
+          )
         ),
         body: SingleChildScrollView(
             child: Column(children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Padding(
-                padding: EdgeInsets.fromLTRB(10, 20, 0, 10),
-                child: Text("Featured",
-                    style: TextStyle(
-                        fontSize: 28.0, fontWeight: FontWeight.bold))),
-            CarouselWidget(data: carousel)
-          ]),
+          CarouselWidget(data: carousel),
+         
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Padding(
                 padding: EdgeInsets.all(10),
@@ -94,9 +82,8 @@ class _HomePageState extends State<HomePage> {
                   Spacer(),
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        Navigator.pushNamed(context, "/profile");
-                      });
+                      Navigator.pushNamed(context, "/items", arguments: SearchArguments("Popular"));
+                      print("asd");
                     },
                     child: Text("See More",
                         style: TextStyle(
@@ -115,4 +102,10 @@ class _HomePageState extends State<HomePage> {
           ])
         ])));
   }
+}
+
+class SearchArguments {
+  final String search;
+
+  SearchArguments(this.search);
 }
