@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "209288707089",
+    "firebase_url": "https://plant-store-uid.firebaseio.com",
+    "project_id": "plant-store-uid",
+    "storage_bucket": "plant-store-uid.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209288707089:android:9fc1766f42e0e23510c5b0",
+        "android_client_info": {
+          "package_name": "com.uid.sugi.plantstore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "209288707089-o1rf1pbe1sq03m43f05l6d9u18fvfu4o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDx5pLCfSKu1JqMxIrKcjvmgkmw-EnZuls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "209288707089-o1rf1pbe1sq03m43f05l6d9u18fvfu4o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

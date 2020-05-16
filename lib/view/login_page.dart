@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -7,7 +8,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _isLoading = true;
   String _email;
   String _password;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -58,8 +58,19 @@ class _LoginPageState extends State<LoginPage> {
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
               labelText: "Email",
-              prefixIcon: Icon(Icons.person)
+              prefixIcon: Icon(Icons.person),
             ),
+            validator: (input) {
+              if(input.isEmpty){
+                return "Please type an email address";
+              }
+              if(!RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$").hasMatch(input)){
+                return "Not a valid email";
+              }
+
+              return null;
+            },
+            onSaved: (value) => _email = value,
           ),
           TextFormField(
             autocorrect: false,
@@ -69,19 +80,26 @@ class _LoginPageState extends State<LoginPage> {
               labelText: "Password",
               prefixIcon: Icon(Icons.lock),
             ),
-            onSaved: (value) {
-              _password = value;
+            validator: (input){
+              if(input.isEmpty){
+                return "Password can't be empty";
+              }else if(input.length < 6){
+                return "Your password need to be atleast 6 characters";
+              }
+
+              return null;
             },
+            onSaved: (value) => _password = value,
           ),
           SizedBox(height: 20),
           FlatButton(
             color: Theme.of(context).primaryColor,
-            textColor: Theme.of(context).primaryTextTheme.body1.color,
+            textColor: Theme.of(context).primaryTextTheme.bodyText2.color,
             onPressed: signIn,
             child: Text("Sign In")
           ),
           SizedBox(height: 10,),
-          Center(child: Text("OR", style: Theme.of(context).textTheme.subhead)),
+          Center(child: Text("OR", style: Theme.of(context).textTheme.subtitle1)),
           SizedBox(height: 10,),
           OutlineButton(
             onPressed: (){
@@ -96,9 +114,19 @@ class _LoginPageState extends State<LoginPage> {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
 
-      var sharedPrefrences = await SharedPreferences.getInstance();
-      sharedPrefrences.setString("token", "123");
-      Navigator.of(context).pushReplacementNamed("/");
+      FirebaseAuth.instance.signInWithEmailAndPassword(email: _email, password: _password)
+      .catchError((e){
+        if(e.code == "ERROR_USER_NOT_FOUND"){
+          setState(() {
+            Scaffold.of(context).showSnackBar(SnackBar(content: Text("User not found"), backgroundColor: Colors.red));
+          });
+        }else if(e.code == "ERROR_WRONG_PASSWORD"){
+          setState(() {
+            Scaffold.of(context).showSnackBar(SnackBar(content: Text("Wrong password"), backgroundColor: Colors.red));
+          });
+        }
+      });
+      
     }
   }
 }

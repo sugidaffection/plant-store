@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_store/model/item.dart';
 import 'package:plant_store/view/card.dart';
@@ -68,12 +70,20 @@ class _HomePageState extends State<HomePage> {
         AssetImage("assets/images/mothers_day.jpg")),
   ];
 
+  FirebaseUser user;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    FirebaseAuth.instance.currentUser()
+      .then((value) => setState(() => user = value));
+      
+  }
+
   void logout() async{
-    var sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.clear();
-
-    Navigator.of(context).pushReplacementNamed("/");
-
+    FirebaseAuth.instance.signOut();
   }
 
   @override
@@ -92,8 +102,8 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: Column(
                   children: [
-                    Text("Sugiono", style: Theme.of(context).textTheme.headline),
-                    Text("1772037@maranatha.ac.id", style: Theme.of(context).textTheme.subhead),
+                    Text(user?.displayName ?? "", style: Theme.of(context).textTheme.headline5),
+                    Text(user?.email ?? "", style: Theme.of(context).textTheme.subtitle1),
                   ]
                 ),
               ),
@@ -120,7 +130,6 @@ class _HomePageState extends State<HomePage> {
                   GestureDetector(
                     onTap: () {
                       Navigator.pushNamed(context, "/items", arguments: "Popular");
-                      print("asd");
                     },
                     child: Text("See More",
                         style: TextStyle(
@@ -130,19 +139,27 @@ class _HomePageState extends State<HomePage> {
             Container(
                 height: 300,
                 width: double.infinity,
-                child: ListView(
-                  padding: EdgeInsets.all(10),
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  physics: ClampingScrollPhysics(),
-                  children: [
-                    Wrap(
-                      spacing: 15,
-                      children: List.generate(items.length, (index){
-                    return ItemCard(item: items[index]);
-                  }))
-                  ],
-                ))
+                child: StreamBuilder(
+                  stream: Firestore.instance.collection("products").snapshots(),
+                  builder: (context, snapshot){
+                    if(!snapshot.hasData){return Center(child: CircularProgressIndicator());}
+                    if(snapshot.hasData){
+                      return snapshot.data.documents.length > 0 ? ListView(
+                        padding: EdgeInsets.all(10),
+                        scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
+                        physics: ClampingScrollPhysics(),
+                        children: [
+                          Wrap(
+                            spacing: 15,
+                            children: List.generate(snapshot.data.documents.length, (index){
+                              return ItemCard(item: snapshot.data.documents[index]);
+                        }))
+                        ],
+                      ) : Center(child: Text("Empty Item"));
+                    }
+                
+                }))
           ])
         ])));
   }

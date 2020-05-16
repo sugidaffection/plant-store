@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
         bottomAppBarTheme: BottomAppBarTheme(
           color: Colors.green
         ),
-        textTheme: TextTheme()
+        fontFamily: "Poppins"
       ),
       home: MainApp(),
 
@@ -67,39 +68,18 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  bool _isLoading = true;
-  SharedPreferences sharedPreferences;
-
-  @override
-  void initState() {
-    super.initState();
-    checkAuth();
-  }
-
-  var timer;
-
-  checkAuth() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    Timer(Duration(milliseconds: 500), (){
-      setState(() {
-        _isLoading = false;
-        
-      });
-
-      if (sharedPreferences.getString("token") == null) {
-        Navigator.of(context).pushReplacementNamed("/login");
-      }else{
-        Navigator.of(context).pushReplacementNamed("/main");
-      }
-    });
-    
-    
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: CircularProgressIndicator())
+      body: StreamBuilder(
+        stream: FirebaseAuth.instance.onAuthStateChanged,
+        builder: (context, snapshot){
+          if(snapshot.hasData)
+              return Pages();
+          return LoginPage();
+        }
+      )
     );
   }
 }

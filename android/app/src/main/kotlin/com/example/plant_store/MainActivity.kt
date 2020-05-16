@@ -1,4 +1,4 @@
-package com.example.plant_store
+package com.uid.sugi.plantstore
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity
