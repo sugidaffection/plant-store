@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "209288707089",
-    "firebase_url": "https://plant-store-uid.firebaseio.com",
-    "project_id": "plant-store-uid",
-    "storage_bucket": "plant-store-uid.appspot.com"
+    "project_number": "323299625895",
+    "firebase_url": "https://plantstore-af5ac.firebaseio.com",
+    "project_id": "plantstore-af5ac",
+    "storage_bucket": "plantstore-af5ac.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:209288707089:android:9fc1766f42e0e23510c5b0",
+        "mobilesdk_app_id": "1:323299625895:android:11c870294d77d754cec482",
         "android_client_info": {
-          "package_name": "com.uid.sugi.plantstore"
+          "package_name": "com.sugicode.plantstore"
         }
       },
       "oauth_client": [
         {
-          "client_id": "209288707089-o1rf1pbe1sq03m43f05l6d9u18fvfu4o.apps.googleusercontent.com",
+          "client_id": "323299625895-28hh7bk67gpva5ovmki3eannek96akq5.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDx5pLCfSKu1JqMxIrKcjvmgkmw-EnZuls"
+          "current_key": "AIzaSyDp8bHiXMdB-4-0uEy0PXTeexsIJ-COvSQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "209288707089-o1rf1pbe1sq03m43f05l6d9u18fvfu4o.apps.googleusercontent.com",
+              "client_id": "323299625895-28hh7bk67gpva5ovmki3eannek96akq5.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:plant_store/view/card.dart';
+import 'package:plantstore/view/card.dart';
 
 class ItemPage extends StatefulWidget {
   @override
@@ -21,7 +21,7 @@ class _ItemPageState extends State<ItemPage> {
               stream: Firestore.instance.collection("products").snapshots(),
               builder: (context, snapshot) {
                 if(!snapshot.hasData){return Center(child: CircularProgressIndicator());}
-                if(snapshot.data.documents.isEmpty){return Center(child: Text("Empty Item"));}
+                if(snapshot.data.documents.isEmpty){return Center(child: Text("We don't have any item yet."));}
                 return GridView.count(
                   childAspectRatio: 200/260,
                   scrollDirection: Axis.vertical,

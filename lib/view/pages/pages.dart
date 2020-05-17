@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:plant_store/view/main_page.dart';
-import 'package:plant_store/view/profile_page.dart';
+import 'package:plantstore/view/pages/main_page.dart';
+import 'package:plantstore/view/pages/profile_page.dart';
 
 
 class Pages extends StatefulWidget {

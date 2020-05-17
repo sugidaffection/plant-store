@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:plant_store/model/item.dart';
-import 'package:plant_store/view/card.dart';
-import 'package:plant_store/view/carousel.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:plantstore/model/item.dart';
+import 'package:plantstore/view/card.dart';
+import 'package:plantstore/view/carousel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -14,52 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-
-  List<Item> items = [
-    Item(
-      image: Image(image: AssetImage("assets/images/snake_plant.jpg")),
-      name: "Snake Plant",
-      desc: "indoor plant for air puryfing",
-      price: 55.0
-    ),
-    Item(
-      image: Image(image: AssetImage("assets/images/snake_plant.jpg")),
-      name: "Snake Plant",
-      desc: "indoor plant for air puryfing",
-      price: 55.0
-    ),
-    Item(
-      image: Image(image: AssetImage("assets/images/snake_plant.jpg")),
-      name: "Snake Plant",
-      desc: "indoor plant for air puryfing",
-      price: 55.0
-    ),
-    Item(
-      image: Image(image: AssetImage("assets/images/snake_plant.jpg")),
-      name: "Snake Plant",
-      desc: "indoor plant for air puryfing",
-      price: 55.0
-    ),
-    Item(
-      image: Image(image: AssetImage("assets/images/snake_plant.jpg")),
-      name: "Snake Plant",
-      desc: "indoor plant for air puryfing",
-      price: 55.0
-    ),
-    Item(
-      image: Image(image: AssetImage("assets/images/snake_plant.jpg")),
-      name: "Snake Plant",
-      desc: "indoor plant for air puryfing",
-      price: 55.0
-    ),
-    Item(
-      image: Image(image: AssetImage("assets/images/snake_plant.jpg")),
-      name: "Snake Plant",
-      desc: "indoor plant for air puryfing",
-      price: 55.0
-    )
-  ];
 
   List<Carousel> carousel = [
     Carousel("Mom's Day", "Give beautiful plant for your mom",
@@ -156,7 +109,7 @@ class _HomePageState extends State<HomePage> {
                               return ItemCard(item: snapshot.data.documents[index]);
                         }))
                         ],
-                      ) : Center(child: Text("Empty Item"));
+                      ) : Center(child: Text("We don't have any item yet."));
                     }
                 
                 }))

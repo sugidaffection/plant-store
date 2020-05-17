@@ -1,4 +1,4 @@
-# plant_store
+# plantstore
 
 A new Flutter project.
 

@@ -1,16 +1,14 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:plant_store/pages.dart';
-import 'package:plant_store/view/item_page.dart';
-import 'package:plant_store/view/login_page.dart';
-import 'package:plant_store/view/profile_page.dart';
-import 'package:plant_store/view/register_page.dart';
-import 'package:plant_store/view/search_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:plantstore/view/auth/reset_password.dart';
+import 'package:plantstore/view/pages/pages.dart';
+import 'package:plantstore/view/pages/item_page.dart';
+import 'package:plantstore/view/auth/login/login_page.dart';
+import 'package:plantstore/view/pages/profile_page.dart';
+import 'package:plantstore/view/auth/register/register_page.dart';
+import 'package:plantstore/view/pages/search_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,6 +24,7 @@ class MyApp extends StatelessWidget {
         "/login": (context) => LoginPage(),
         "/items": (context) => ItemPage(),
         "/search": (context) => SearchPage(),
+        "/resetPassword": (context) => ResetPassword()
       };
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -34,52 +33,54 @@ class MyApp extends StatelessWidget {
           color: Colors.green,
         ),
         primaryColor: Colors.green,
-        accentColor: Colors.greenAccent,
+        accentColor: Colors.amberAccent,
         bottomAppBarTheme: BottomAppBarTheme(
           color: Colors.green
         ),
         fontFamily: "Poppins"
       ),
-      home: MainApp(),
+      home: Scaffold(
+      body: MainPage()
+    ),
+    onGenerateRoute: (settings) {
+      if(["/items", "/register"].contains(settings.name)){
+        return CupertinoPageRoute(builder: (context) => routes[settings.name](context), settings: settings);
+      }
 
-      onGenerateRoute: (settings) {
-        if(settings.name == "/items"){
-          return CupertinoPageRoute(builder: (context) => ItemPage(), settings: settings);
-        }
-
-        if(settings.name == "/search"){
-          return PageRouteBuilder(
-            pageBuilder: (_,__,___) => SearchPage(),
-            transitionsBuilder: (_, animation, __, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            settings: settings,
-          );
-        }
-        return MaterialPageRoute(builder: (context) => routes[settings.name](context), settings: settings);
-      },
+      if(settings.name == "/search"){
+        return PageRouteBuilder(
+          pageBuilder: (_,__,___) => SearchPage(),
+          transitionsBuilder: (_, animation, __, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          settings: settings,
+        );
+      }
+      return MaterialPageRoute(builder: (context) => routes[settings.name](context), settings: settings);
+    },
     );
   }
 }
 
-class MainApp extends StatefulWidget {
+
+class MainPage extends StatefulWidget {
   @override
-  _MainAppState createState() => _MainAppState();
+  _MainPageState createState() => _MainPageState();
 }
 
-class _MainAppState extends State<MainApp> {
-
+class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder(
+    
+    return StreamBuilder(
         stream: FirebaseAuth.instance.onAuthStateChanged,
         builder: (context, snapshot){
-          if(snapshot.hasData)
-              return Pages();
+          if(snapshot.hasData) { 
+            return Pages();
+          }
           return LoginPage();
         }
-      )
+      
     );
   }
 }

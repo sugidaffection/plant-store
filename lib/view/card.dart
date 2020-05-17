@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:plant_store/model/item.dart';
-import 'package:plant_store/view/rating.dart';
+import 'package:plantstore/model/item.dart';
+import 'package:plantstore/view/rating.dart';
 
 class ItemCard extends StatelessWidget {
 
