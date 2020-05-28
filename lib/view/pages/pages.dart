@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:plantstore/view/pages/cart_page.dart';
 import 'package:plantstore/view/pages/main_page.dart';
 import 'package:plantstore/view/pages/profile_page.dart';
+import 'package:plantstore/view/pages/wishlist_page.dart';
 
 
 class Pages extends StatefulWidget {
@@ -33,6 +35,12 @@ class _PagesState extends State<Pages> {
               switch (idx) {
                 case 0:
                   selectedPage = HomePage();
+                  break;
+                case 1:
+                  selectedPage = WishlistPage();
+                  break;
+                case 2:
+                  selectedPage = CartPage();
                   break;
                 case 3:
                   selectedPage = ProfilePage();
