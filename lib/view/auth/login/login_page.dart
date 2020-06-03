@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
           }, child: Text("Forgot your password?"))
           ),
           SizedBox(height: 20),
-          FlatButton(
+          RaisedButton(
             color: Theme.of(context).primaryColor,
             textColor: Theme.of(context).primaryTextTheme.bodyText2.color,
             onPressed: signIn,
@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(height: 10,),
           Center(child: Text("OR", style: Theme.of(context).textTheme.subtitle1)),
           SizedBox(height: 10,),
-          OutlineButton(
+          RaisedButton(
             onPressed: (){
               Navigator.of(context).pushNamed("/register");
             },

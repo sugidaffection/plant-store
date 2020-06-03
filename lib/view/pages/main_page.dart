@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:plantstore/model/item.dart';
 import 'package:plantstore/view/card.dart';
 import 'package:plantstore/view/carousel.dart';
 
@@ -93,11 +92,11 @@ class _HomePageState extends State<HomePage> {
                 height: 300,
                 width: double.infinity,
                 child: StreamBuilder(
-                  stream: Firestore.instance.collection("products").snapshots(),
+                  stream: Firestore.instance.collection("items").limit(5).snapshots(),
                   builder: (context, snapshot){
-                    if(!snapshot.hasData){return Center(child: CircularProgressIndicator());}
-                    if(snapshot.hasData){
-                      return snapshot.data.documents.length > 0 ? ListView(
+                    if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
+                    if (snapshot.data.documents.isEmpty) return Center(child: Text("We don't have any item yet."));
+                      return ListView(
                         padding: EdgeInsets.all(10),
                         scrollDirection: Axis.horizontal,
                         shrinkWrap: true,
@@ -109,9 +108,7 @@ class _HomePageState extends State<HomePage> {
                               return ItemCard(item: snapshot.data.documents[index]);
                         }))
                         ],
-                      ) : Center(child: Text("We don't have any item yet."));
-                    }
-                
+                      );
                 }))
           ])
         ])));

@@ -18,7 +18,7 @@ class _ItemPageState extends State<ItemPage> {
           title: Text(args.toString()),
         ),
         body:StreamBuilder(
-              stream: Firestore.instance.collection("products").snapshots(),
+              stream: Firestore.instance.collection("items").snapshots(),
               builder: (context, snapshot) {
                 if(!snapshot.hasData){return Center(child: CircularProgressIndicator());}
                 if(snapshot.data.documents.isEmpty){return Center(child: Text("We don't have any item yet."));}
