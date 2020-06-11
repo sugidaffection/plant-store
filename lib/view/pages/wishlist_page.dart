@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:plantstore/view/rating.dart';
 
 class WishlistPage extends StatefulWidget {
   @override
@@ -14,6 +15,9 @@ class _WishlistPageState extends State<WishlistPage> {
 
   FirebaseUser user;
 
+  List<String> wishlist = [];
+  CollectionReference wishlistRef;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -22,6 +26,22 @@ class _WishlistPageState extends State<WishlistPage> {
       setState(() {
         user = value;
       });
+
+      wishlistRef = Firestore.instance.collection("user").document(user.uid).collection("wishlist").reference();
+      wishlistRef.snapshots().listen((event) {
+         if(this.mounted)
+          setState(() {
+            
+            wishlist = event.documents.map((e) => e.reference.documentID).toList();
+          });
+      });
+    });
+  }
+
+  void removeFromWishlist(DocumentSnapshot item){
+    setState(() {
+      if(wishlist.contains(item.documentID))
+        wishlistRef.document(item.documentID).delete();
     });
   }
 
@@ -32,15 +52,8 @@ class _WishlistPageState extends State<WishlistPage> {
         centerTitle: true,
         title: Text("Wishlist"),
       ),
-      body: user == null ? Center(child: CircularProgressIndicator()) : StreamBuilder(
-        stream: db.collection("user").document(user.uid).collection("wishlist").snapshots(),
-        builder: (context, snapshot){
-          if(snapshot.hasData){
-            if(snapshot.data.documents.isNotEmpty){
-              return Container();
-            }
-
-            return Center(child: Wrap(
+      body: user == null ? Center(child: CircularProgressIndicator()) : 
+        wishlist.isEmpty ? Center(child: Wrap(
               direction: Axis.vertical,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
@@ -49,11 +62,52 @@ class _WishlistPageState extends State<WishlistPage> {
                 SizedBox(height: 20),
                 RaisedButton(
                   color: Theme.of(context).primaryColor,
-                  onPressed: (){},
+                  onPressed: (){
+                    Navigator.pushNamed(context, "/items", arguments: "Explore");
+                  },
                   child: Text("Explore Items", style: Theme.of(context).primaryTextTheme.button,),
                 )
               ]
-            ));
+            )) :  StreamBuilder(
+        stream: db.collection("items").where(FieldPath.documentId, whereIn: wishlist).snapshots(),
+        builder: (context, snapshot){
+          if(snapshot.hasData){
+            if(snapshot.data.documents.isNotEmpty){
+              List<DocumentSnapshot> items = snapshot.data.documents;
+              return ListView.separated(itemBuilder: (context, idx){
+                DocumentSnapshot item = items[idx];
+                return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Image.network(item["images"][0], width: 80, height: 80, fit: BoxFit.cover,),
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(item["name"], style: Theme.of(context).textTheme.headline6.merge(TextStyle(height: .95)),),
+                            SizedBox(height: 10),
+                            StarRatingWidget(
+                              rating: item["rating"], 
+                              fillColor: Theme.of(context).primaryColor,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                            ),
+                            Text("\$${item["price"]}", style: Theme.of(context).textTheme.headline6,),
+                          ],
+                        ),
+                        ),
+                        
+                        IconButton(
+                          icon: Icon(
+                            Icons.favorite, 
+                            color: Colors.pink, 
+                            size: 32,
+                          ), 
+                        onPressed: () => removeFromWishlist(item))
+                      ],
+                    );
+              }, separatorBuilder: (context, idx) => SizedBox(height: 20), itemCount: items.length, padding: EdgeInsets.all(20),);
+            }
           }
           return Center(child: CircularProgressIndicator());
         }

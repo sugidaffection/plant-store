@@ -8,11 +8,10 @@ class ItemCard extends StatelessWidget {
 
   const ItemCard({Key key, @required this.item}) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 250,
+      height: 260,
       width: 200,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -31,23 +30,16 @@ class ItemCard extends StatelessWidget {
           ClipRRect(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
               child: Image.network(
-              item["images"][0],
-              loadingBuilder: (context, child, loadingProgress) {
-                if(loadingProgress == null){
-                  return child;
-                }
-                return Center(child: CircularProgressIndicator());
-              },
-              
-              height: 120,
-              width: double.infinity,
-              
-              fit: BoxFit.cover,
+                item["images"][0],
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
             )),
           SizedBox(height: 10),
           Text(item.data["name"], textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline6),
           StarRatingWidget(rating: item["rating"], fillColor: Theme.of(context).primaryColor),
-          Text("\$${item["price"]}", style: Theme.of(context).textTheme.headline5.merge(TextStyle(color: Colors.black54)))
+          Text("\$${item["price"]}", style: Theme.of(context).textTheme.headline6.merge(TextStyle(color: Colors.black54)))
         ],
       ),
     );

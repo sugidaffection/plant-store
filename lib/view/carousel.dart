@@ -6,7 +6,7 @@ class Carousel {
   final String title, subtitle;
   final ImageProvider image;
 
-  Carousel(this.title, this.subtitle, this.image);
+  Carousel({this.title: "", this.subtitle: "", this.image});
 }
 
 class CarouselWidget extends StatefulWidget {
