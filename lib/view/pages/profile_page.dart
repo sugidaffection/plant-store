@@ -16,6 +16,8 @@ class _ProfilePageState extends State<ProfilePage> {
   FirebaseUser user;
   UserForm userDetail = UserForm();
 
+  Map<String, dynamic> doc;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -31,6 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
           var data = value.data;
           userDetail.address = data["address"];
           userDetail.phone = data["phone"];
+          doc = data;
         });
       });
     });
@@ -72,9 +75,9 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("500 Pts", style: theme.textTheme.headline5.merge(TextStyle(color: Colors.black54))),
+                Text("${doc != null && doc["points"] != null ? doc["points"] : 500} Pts", style: theme.textTheme.headline5.merge(TextStyle(color: Colors.black54))),
                 Container(width: 40, height: 40, child: VerticalDivider(color: Colors.black12, thickness: 1.3,)),
-                Text("\$0.00", style: theme.textTheme.headline5.merge(TextStyle(color: Colors.black54))),
+                Text("\$${doc != null && doc["balance"] != null ? doc["balance"] : 0.00}", style: theme.textTheme.headline5.merge(TextStyle(color: Colors.black54))),
               ]
             )
           ],

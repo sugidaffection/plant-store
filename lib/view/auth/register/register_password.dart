@@ -82,8 +82,6 @@ class _RegisterPasswordState extends State<RegisterPassword> {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
 
-      
-
       auth
       .createUserWithEmailAndPassword(
               email: userForm.email, password: userForm.password)

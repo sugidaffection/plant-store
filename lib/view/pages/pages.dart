@@ -78,6 +78,7 @@ class _PagesState extends State<Pages> {
                 ),
                 SizedBox(height: 40),
                 Container(
+                  height: 55,
                   width: width,
                   child: 
                     FlatButton(
@@ -92,7 +93,9 @@ class _PagesState extends State<Pages> {
                         Text("My Orders", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),)
                       ])),
                   ),
+                  SizedBox(height: 5),
                   Container(
+                    height: 55,
                   width: width,
                   child: 
                     FlatButton(
@@ -107,11 +110,15 @@ class _PagesState extends State<Pages> {
                         Text("Card Center", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),)
                       ])),
                   ),
+                  SizedBox(height: 5),
                   Container(
+                    height: 55,
                   width: width,
                   child: 
                     FlatButton(
-                    onPressed: (){}, 
+                    onPressed: (){
+                      Navigator.of(context).popAndPushNamed("/help");
+                    }, 
                     child: 
                     Row(
                       children: [

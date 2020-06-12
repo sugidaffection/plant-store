@@ -47,7 +47,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text("Order ID : ", style: theme.textTheme.subtitle1),
-                  SizedBox(width: 5),
+                  SizedBox(width: 15),
                   Text("${item["order_id"]}", style: theme.textTheme.subtitle1),
                   Spacer(),
                   Text(date, style: theme.textTheme.subtitle2.merge(TextStyle(color: Colors.black54))),
@@ -58,7 +58,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text("Total Items", style: theme.textTheme.subtitle1.merge(TextStyle(color: Colors.black54))),
-                  SizedBox(width: 5),
+                  SizedBox(width: 15),
                   Text(item["order_items"].length.toString(), style: theme.textTheme.subtitle2),
                 ],
               ),
@@ -66,7 +66,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text("Total Amount", style: theme.textTheme.subtitle1.merge(TextStyle(color: Colors.black54))),
-                  SizedBox(width: 5),
+                  SizedBox(width: 15),
                   Text("\$${item["order_amount"]}", style: theme.textTheme.subtitle1),
                 ],
               ),
@@ -75,9 +75,9 @@ class _OrdersPageState extends State<OrdersPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text("STATUS", style: theme.textTheme.subtitle1.merge(TextStyle(color: Colors.black54))),
-                  SizedBox(width: 5),
+                  SizedBox(width: 15),
                   Text("${item["order_status"]}", style: theme.textTheme.subtitle1.merge(TextStyle(
-                    color: item["order_status"] == "Processing" ? Colors.indigo : item["order_status"] == "Transit" ? Colors.orange : item["order_status"] == "Received" ? Colors.green : Colors.black
+                    color: item["order_status"] == "Processing" ? Colors.indigo : item["order_status"] == "Transit" ? Colors.orange : item["order_status"] == "Received" ? Colors.green :  Colors.black
                   ))),
                 ],
               ),

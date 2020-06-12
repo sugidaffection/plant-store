@@ -18,6 +18,9 @@ class _CartPageState extends State<CartPage> {
   CollectionReference orderRef;
   List<DocumentSnapshot> cartList;
 
+  DocumentReference userRef;
+  int userPoints;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -27,8 +30,17 @@ class _CartPageState extends State<CartPage> {
         setState(() {
           user = value;
           orderRef = db.collection("user").document(user.uid).collection("orders");
+          userRef = db.collection("user").document(user.uid);
         });
       }
+
+      db.collection("user").document(user.uid).snapshots().listen((event) {
+        if(this.mounted) {
+          setState(() {
+            userPoints = event.data["points"] ?? 500;
+          });
+        }
+      });
 
       db.collection("user").document(user.uid).collection("cart").snapshots().listen((event) {
         
@@ -104,6 +116,14 @@ class _CartPageState extends State<CartPage> {
               batch.delete(doc.reference);
             }
             batch.commit();
+
+            if (userRef != null) {
+              userRef.updateData(
+                {
+                  "points" : userPoints + 300
+                }
+              );
+            }
           }
         });
       });

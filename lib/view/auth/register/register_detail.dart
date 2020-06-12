@@ -95,7 +95,7 @@ class _RegisterDetailState extends State<RegisterDetail> {
                       userForm.gender = false;
                     });
                   }),
-              Text("Male"),
+              Text("Female"),
             ])
             )
           ],
