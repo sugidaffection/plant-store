@@ -15,6 +15,10 @@ class _ItemPageState extends State<ItemPage> {
   List<String> wishlist;
   CollectionReference wishlistRef;
 
+  CollectionReference cartRef;
+
+  List<Map<String, dynamic>> cart;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -28,8 +32,19 @@ class _ItemPageState extends State<ItemPage> {
       wishlistRef.snapshots().listen((event) {
         if(this.mounted)
           setState(() {
-            
               wishlist = event.documents.map<String>((e) => e.data["ref"].path).toList();
+          });
+      });
+
+      cartRef = Firestore.instance.collection("user").document(user.uid).collection("cart").reference();
+      cartRef.snapshots().listen((event) {
+        if(this.mounted)
+          setState(() {
+            cart = event.documents.map((e) => {
+              "ref": e.reference,
+              "path": e.data["ref"].path,
+              "count": e.data["count"]
+            }).toList();
           });
       });
 
@@ -47,7 +62,47 @@ class _ItemPageState extends State<ItemPage> {
           });
       });
   }
+
+  void addItemToCart(DocumentSnapshot item) {
+    if(this.mounted)
+      setState(() {
+        if(cartRef != null)
+        cartRef.document(item.reference.documentID).setData({
+          "ref": item.reference,
+          "count": 1
+        });
+      });
+  }
+
+  void addItem(item) {
+    if(this.mounted && cart != null){
+      Iterable<Map<String, dynamic>> listref = cart.where((element) => element["path"] == item.reference.path);
+      if(listref.isNotEmpty)
+        setState(() {
+          if(listref.first != null)
+            listref.first["ref"].updateData({
+              "count": listref.first["count"] + 1
+            });
+        });
+    }
+      
+  }
   
+  void removeItem(item) {
+    if(this.mounted && cart != null){
+      Iterable<Map<String, dynamic>> listref = cart.where((element) => element["path"] == item.reference.path);
+      if(listref.isNotEmpty)
+        setState(() {
+          if(listref.first != null)
+            if(listref.first["count"] - 1 > 0)
+              listref.first["ref"].updateData({
+                "count": listref.first["count"] - 1
+              });
+            else listref.first["ref"].delete();
+        });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Object args = ModalRoute.of(context).settings.arguments;
@@ -55,6 +110,11 @@ class _ItemPageState extends State<ItemPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(args.toString()),
+          actions: <Widget>[
+            IconButton(icon: Icon(Icons.shopping_cart), onPressed: (){
+              Navigator.of(context).pushNamed("/cart");
+            })
+          ],
         ),
         body:StreamBuilder(
               stream: Firestore.instance.collection("items").snapshots(),
@@ -92,14 +152,49 @@ class _ItemPageState extends State<ItemPage> {
                           ],
                         ),
                         ),
-                        
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
                         IconButton(
+                          iconSize: 32,
                           icon: Icon(
                             wishlist != null && wishlist.isNotEmpty && wishlist.contains(item.reference.path) ? Icons.favorite : Icons.favorite_border, 
                             color: Colors.pink, 
-                            size: 32,
                           ), 
-                        onPressed: () => addToWishlist(item))
+                        onPressed: () => addToWishlist(item)),
+
+                cart != null && cart.where((element) => element["path"] == item.reference.path).isEmpty ?
+                        IconButton(
+                          iconSize: 32,
+                          icon: Icon(
+                            Icons.add_shopping_cart, 
+                            color: Theme.of(context).primaryColor, 
+                          ), 
+                        onPressed: () => addItemToCart(item)) :
+                        Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        IconButton(
+                          iconSize: 32,
+                          icon: Icon(
+                                    Icons.remove_circle, 
+                                    color: Theme.of(context).accentColor,
+                                  ), onPressed: () => removeItem(item)),
+                        SizedBox(width: 5),
+                        Text(cart == null ? "" : "${cart.where((element) => element["path"] == item.reference.path).first["count"]}", style: Theme.of(context).textTheme.headline6, textAlign: TextAlign.center,),
+                        SizedBox(width: 5),
+                        IconButton(
+                          iconSize: 32,
+                          icon: Icon(
+                          Icons.add_circle, 
+                          color: Theme.of(context).accentColor,
+                        ), onPressed: () => addItem(item)),
+                      ],
+                    )
+                          ],
+                        )
+                        
                       ],
                     ));
                 });

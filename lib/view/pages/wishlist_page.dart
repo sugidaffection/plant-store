@@ -18,6 +18,10 @@ class _WishlistPageState extends State<WishlistPage> {
   List<String> wishlist = [];
   CollectionReference wishlistRef;
 
+  CollectionReference cartRef;
+
+  List<Map<String, dynamic>> cart;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -35,6 +39,18 @@ class _WishlistPageState extends State<WishlistPage> {
             wishlist = event.documents.map((e) => e.reference.documentID).toList();
           });
       });
+
+      cartRef = Firestore.instance.collection("user").document(user.uid).collection("cart").reference();
+      cartRef.snapshots().listen((event) {
+        if(this.mounted)
+          setState(() {
+            cart = event.documents.map((e) => {
+              "ref": e.reference,
+              "path": e.data["ref"].path,
+              "count": e.data["count"]
+            }).toList();
+          });
+      });
     });
   }
 
@@ -43,6 +59,46 @@ class _WishlistPageState extends State<WishlistPage> {
       if(wishlist.contains(item.documentID))
         wishlistRef.document(item.documentID).delete();
     });
+  }
+
+  void addItemToCart(DocumentSnapshot item) {
+    if(this.mounted)
+      setState(() {
+        if(cartRef != null)
+        cartRef.document(item.reference.documentID).setData({
+          "ref": item.reference,
+          "count": 1
+        });
+      });
+  }
+
+  void addItem(item) {
+    if(this.mounted && cart != null){
+      Iterable<Map<String, dynamic>> listref = cart.where((element) => element["path"] == item.reference.path);
+      if(listref.isNotEmpty)
+        setState(() {
+          if(listref.first != null)
+            listref.first["ref"].updateData({
+              "count": listref.first["count"] + 1
+            });
+        });
+    }
+      
+  }
+  
+  void removeItem(item) {
+    if(this.mounted && cart != null){
+      Iterable<Map<String, dynamic>> listref = cart.where((element) => element["path"] == item.reference.path);
+      if(listref.isNotEmpty)
+        setState(() {
+          if(listref.first != null)
+            if(listref.first["count"] - 1 > 0)
+              listref.first["ref"].updateData({
+                "count": listref.first["count"] - 1
+              });
+            else listref.first["ref"].delete();
+        });
+    }
   }
 
   @override
@@ -76,7 +132,12 @@ class _WishlistPageState extends State<WishlistPage> {
               List<DocumentSnapshot> items = snapshot.data.documents;
               return ListView.separated(itemBuilder: (context, idx){
                 DocumentSnapshot item = items[idx];
-                return Row(
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    Navigator.pushNamed(context, "/itemDetail", arguments: item.reference.documentID);
+                  },
+                  child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Image.network(item["images"][0], width: 80, height: 80, fit: BoxFit.cover,),
@@ -96,16 +157,51 @@ class _WishlistPageState extends State<WishlistPage> {
                           ],
                         ),
                         ),
-                        
-                        IconButton(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+IconButton(
                           icon: Icon(
                             Icons.favorite, 
                             color: Colors.pink, 
                             size: 32,
                           ), 
-                        onPressed: () => removeFromWishlist(item))
+                        onPressed: () => removeFromWishlist(item)),
+
+                        cart != null && cart.where((element) => element["path"] == item.reference.path).isEmpty ?
+                        IconButton(
+                          iconSize: 32,
+                          icon: Icon(
+                            Icons.add_shopping_cart, 
+                            color: Theme.of(context).primaryColor, 
+                          ), 
+                        onPressed: () => addItemToCart(item)) :
+                        Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        IconButton(
+                          iconSize: 32,
+                          icon: Icon(
+                                    Icons.remove_circle, 
+                                    color: Theme.of(context).accentColor,
+                                  ), onPressed: () => removeItem(item)),
+                        SizedBox(width: 5),
+                        Text(cart == null ? "" : "${cart.where((element) => element["path"] == item.reference.path).first["count"]}", style: Theme.of(context).textTheme.headline6, textAlign: TextAlign.center,),
+                        SizedBox(width: 5),
+                        IconButton(
+                          iconSize: 32,
+                          icon: Icon(
+                          Icons.add_circle, 
+                          color: Theme.of(context).accentColor,
+                        ), onPressed: () => addItem(item)),
                       ],
-                    );
+                    )
+                          ],
+                        )
+                        
+                      ],
+                    ));
               }, separatorBuilder: (context, idx) => SizedBox(height: 20), itemCount: items.length, padding: EdgeInsets.all(20),);
             }
           }

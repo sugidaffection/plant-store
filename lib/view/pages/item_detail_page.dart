@@ -133,7 +133,8 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
             CarouselWidget(data: 
               List.generate(doc["images"].length, (index) {
                 return Carousel(image: NetworkImage(doc["images"][index]));
-              })
+              }),
+              timer: false,
             ),
             Expanded(
               child: Padding(
@@ -151,7 +152,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
             ),
             Padding(
               padding: EdgeInsets.all(20),
-              child: cart.where((element) => element["path"] == doc.reference.path).isEmpty ?
+              child: cart != null && cart.where((element) => element["path"] == doc.reference.path).isEmpty ?
               RaisedButton(
                     color: Theme.of(context).primaryColor,
                     textColor: Theme.of(context).primaryTextTheme.button.color,
@@ -176,7 +177,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                             color: Theme.of(context).accentColor,
                           ), onPressed: () => removeItem()),
                 SizedBox(width: 10),
-                Text("${cart.where((element) => element["path"] == doc.reference.path).first["count"]}", style: Theme.of(context).textTheme.headline6, textAlign: TextAlign.center,),
+                Text(cart == null ? "" : "${cart.where((element) => element["path"] == doc.reference.path).first["count"]}", style: Theme.of(context).textTheme.headline6, textAlign: TextAlign.center,),
                 SizedBox(width: 10),
                 IconButton(
                   iconSize: 42,

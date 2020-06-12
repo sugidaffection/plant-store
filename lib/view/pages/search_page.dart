@@ -95,7 +95,9 @@ class _SearchPageState extends State<SearchPage> {
               backgroundImage: NetworkImage(data[i]["images"][0]),
             )]),
             trailing: Icon(Icons.keyboard_arrow_right),
-            onTap: (){},
+            onTap: (){
+              Navigator.pushNamed(context, "/itemDetail", arguments: data[i].reference.documentID);
+            },
           );
       });
   }

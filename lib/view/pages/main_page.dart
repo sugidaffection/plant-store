@@ -26,6 +26,8 @@ class _HomePageState extends State<HomePage> {
   FirebaseUser user;
   List<DocumentSnapshot> cart;
 
+  List<DocumentSnapshot> items;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -35,7 +37,19 @@ class _HomePageState extends State<HomePage> {
       .then((value) {
         user = value;
         Firestore.instance.collection("user").document(user.uid).collection("cart").snapshots().listen((event) {
-          cart = event.documents;
+          if(this.mounted)
+            setState(() {
+              cart = event.documents;
+            });
+          else cart = List();
+        });
+
+        Firestore.instance.collection("items").snapshots().listen((event) {
+          if(this.mounted)
+            setState(() {
+              items = event.documents;
+            });
+          else items = List();
         });
       });
       
@@ -51,14 +65,11 @@ class _HomePageState extends State<HomePage> {
     FirebaseAuth.instance.signOut();
   }
 
-  Widget createCardList(name, stream) {
-    return StreamBuilder(
-                  stream: stream,
-                  builder: (context, snapshot){
-                    if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
-                    if (snapshot.data.documents.isEmpty) return Center(child: Text("We don't have any item yet."));
-                      return Column(crossAxisAlignment: CrossAxisAlignment.start, 
-                      children: [
+  Widget createCardList(name, List<DocumentSnapshot> docs) {
+    if(docs == null) return Center(child: CircularProgressIndicator());
+    if (docs.isEmpty) return Center(child: Text("We don't have any item yet."));
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, 
+        children: [
             SizedBox(height: 20),
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
@@ -79,22 +90,22 @@ class _HomePageState extends State<HomePage> {
                 height: 280,
                 width: double.infinity,
                 child: ListView(
-                        padding: EdgeInsets.all(10),
-                        scrollDirection: Axis.horizontal,
-                        shrinkWrap: true,
-                        physics: ClampingScrollPhysics(),
-                        children: [
-                          Wrap(
-                            spacing: 15,
-                            children: List.generate(snapshot.data.documents.length, (index){
-                              return GestureDetector(child: ItemCard(item: snapshot.data.documents[index]),
-                              onTap: () {
-                                Navigator.pushNamed(context, "/itemDetail", arguments: snapshot.data.documents[index].reference.documentID);
-                              },);
-                        }))
-                        ],
-                      ))]);
-                });
+                  padding: EdgeInsets.all(10),
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  physics: ClampingScrollPhysics(),
+                  children: [
+                    Wrap(
+                      spacing: 15,
+                      children: List.generate(4, (index){
+                        return GestureDetector(child: ItemCard(item: docs[index]),
+                        onTap: () {
+                          if(docs != null && docs.isNotEmpty)
+                            Navigator.pushNamed(context, "/itemDetail", arguments: docs[index].reference.documentID);
+                        },);
+                  }))
+                  ],
+                ))]);
   }
 
   void addToCart(DocumentSnapshot item) {
@@ -137,84 +148,89 @@ class _HomePageState extends State<HomePage> {
 
   Widget createGridView(List<DocumentSnapshot> documents) {
     return GridView.count(
-                              physics: NeverScrollableScrollPhysics(),
-                              padding: EdgeInsets.all(20),
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: 150 / 250,
-                              shrinkWrap: true,
-                            crossAxisCount: 2,
-                            children: documents.map<Widget>(
-                              (item){
-                                var cartItemFilter = cart.where((element) => element["ref"]
-                                                .path == item.reference.path);
-                                var cartItem = cartItemFilter.isNotEmpty ? cartItemFilter.first : null;
-                                var cartItemCount = cartItem != null ? cartItem.data["count"] : 0;
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.all(20),
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 150 / 250,
+            shrinkWrap: true,
+          crossAxisCount: 2,
+          children: documents.map<Widget>(
+            (item){
+              var cartItemFilter = cart == null ? Iterable.empty() : cart.where((element) => element["ref"]
+                              .path == item.reference.path);
+              var cartItem = cartItemFilter.isNotEmpty ? cartItemFilter.first : null;
+              var cartItemCount = cartItem != null ? cartItem.data["count"] : 0;
 
 
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Container(
-                                        height: 120,
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image:NetworkImage(item["images"][0],), 
-                                            fit: BoxFit.cover,),
-                                    )),
-                                      Text(item["name"], style: Theme.of(context).textTheme.headline6),
-                                      Row(
-                                      children: [
-                                        StarRatingWidget(
-                                        rating: item["rating"],
-                                        fillColor: Theme.of(context).primaryColor,
-                                        mainAxisAlignment: MainAxisAlignment.start,),
-                                        Spacer(),
-                                        Text("\$${item["price"]}", style: Theme.of(context).textTheme.subtitle1),
-                                      ],),
-                                      
-                                      Spacer(),
-                                      cartItem != null && cartItemCount > 0 ? 
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          IconButton(
-                                            icon: Icon(Icons.remove_circle, color: Theme.of(context).accentColor,), 
-                                            onPressed: () => removeFromCart(item),
-                                            iconSize: 42
-                                          ),
-                                          Text("$cartItemCount",
-                                            style: Theme.of(context).textTheme.headline6,
-                                          ),
-                                          IconButton(
-                                            icon: Icon(Icons.add_circle, color: Theme.of(context).accentColor,), 
-                                            onPressed: () => addToCart(item),
-                                            iconSize: 42
-                                          ),
-                                        ],
-                                      ) :
-                                      Container(
-                                        child: 
-                                        RaisedButton(
-                                          onPressed: () => addToCart(item), 
-                                          child: 
-                                          Row(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                            Icon(Icons.add_shopping_cart),
-                                            SizedBox(width: 10,),
-                                            Text("Add to cart"),
-                                          ]),
-                                          color: Theme.of(context).primaryColor,
-                                          textColor: Colors.white,
-                                        ))
-                                    ]
-                                
-                                );
-                              }
-                            ).toList(),
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            Navigator.pushNamed(context, "/itemDetail", arguments: item.reference.documentID);
+          },
+          child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                height: 120,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image:NetworkImage(item["images"][0],), 
+                    fit: BoxFit.cover,),
+            )),
+              Text(item["name"], style: Theme.of(context).textTheme.headline6),
+              Row(
+              children: [
+                StarRatingWidget(
+                rating: item["rating"],
+                fillColor: Theme.of(context).primaryColor,
+                mainAxisAlignment: MainAxisAlignment.start,),
+                Spacer(),
+                Text("\$${item["price"]}", style: Theme.of(context).textTheme.subtitle1),
+              ],),
+              
+              Spacer(),
+              cartItem != null && cartItemCount > 0 ? 
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.remove_circle, color: Theme.of(context).accentColor,), 
+                    onPressed: () => removeFromCart(item),
+                    iconSize: 42
+                  ),
+                  Text("$cartItemCount",
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add_circle, color: Theme.of(context).accentColor,), 
+                    onPressed: () => addToCart(item),
+                    iconSize: 42
+                  ),
+                ],
+              ) :
+              Container(
+                child: 
+                RaisedButton(
+                  onPressed: () => addToCart(item), 
+                  child: 
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                    Icon(Icons.add_shopping_cart),
+                    SizedBox(width: 10,),
+                    Text("Add to cart"),
+                  ]),
+                  color: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                ))
+            ]
+        
+        ));
+      }
+    ).toList(),
                          
                   );
   }
@@ -225,7 +241,7 @@ class _HomePageState extends State<HomePage> {
         body: SingleChildScrollView(
             child: Column(children: [
           CarouselWidget(data: carousel),
-          createCardList("Popular", Firestore.instance.collection("items").limit(5).snapshots()),
+          createCardList("Popular", items),
           StreamBuilder(
             stream: Firestore.instance.collection("items").snapshots(),
             builder: (context, snapshot){
@@ -282,37 +298,35 @@ class _HomePageState extends State<HomePage> {
                     ]);
                   }),
                       
-          createCardList("Recommended", Firestore.instance.collection("items").limit(5).snapshots()),
-          StreamBuilder(
-            stream: Firestore.instance.collection("items").limit(6).snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return CircularProgressIndicator();
-              if (snapshot.data.documents.isEmpty) return Center(child: Text("Empty Item"));
-              return Column(
-                crossAxisAlignment: 
-                  CrossAxisAlignment.start, 
-                      children: [
-                          SizedBox(height: 20),
-                          Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Row(children: [
-                                Text("Explore",
-                                    style: Theme.of(context).textTheme.headline5),
-                                Spacer(),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushNamed(context, "/items", arguments: "Explore");
-                                  },
-                                  child: Text("See More",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500, color: Theme.of(context).primaryColor)),
-                                )
-                              ])),
-                            createGridView(snapshot.data.documents)
-                ]
-              );
-            }
+          createCardList("Recommended", items != null ? items.reversed.toList() : items),
+
+          items == null ? CircularProgressIndicator() :
+          items.isEmpty ? Center(child: Text("Empty Item")) :
+          Column(
+            crossAxisAlignment: 
+              CrossAxisAlignment.start, 
+                  children: [
+                      SizedBox(height: 20),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(children: [
+                            Text("Explore",
+                                style: Theme.of(context).textTheme.headline5),
+                            Spacer(),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(context, "/items", arguments: "Explore");
+                              },
+                              child: Text("See More",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w500, color: Theme.of(context).primaryColor)),
+                            )
+                          ])),
+                        createGridView(items)
+            ]
           )
+
+
         ])));
   }
 }

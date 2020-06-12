@@ -15,17 +15,29 @@ class _CartPageState extends State<CartPage> {
 
   List<Map<String, dynamic>> items;
 
+  CollectionReference orderRef;
+  List<DocumentSnapshot> cartList;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     auth.currentUser().then((value){
-      setState(() {
-        user = value;
-      });
+      if(this.mounted){
+        setState(() {
+          user = value;
+          orderRef = db.collection("user").document(user.uid).collection("orders");
+        });
+      }
 
-      db.collection("user").document(user.uid).collection("cart").where("count", isGreaterThan: 0).snapshots().listen((event) {
+      db.collection("user").document(user.uid).collection("cart").snapshots().listen((event) {
+        
+        if (this.mounted) {
+          setState(() {
+            cartList = event.documents;
+          });
+        }
+
         List<String> refPath = event.documents.map<String>((e) => e.data["ref"].documentID).toList();
         List<Map<String, dynamic>> docs = event.documents.map((e) => {
           "path" : e.data["ref"].path,
@@ -41,7 +53,8 @@ class _CartPageState extends State<CartPage> {
                   var doc = docs.where((element) => element["path"] == e.reference.path).first;
                   return {
                     ...e.data,
-                    ...doc
+                    ...doc,
+                    "item_ref": e.reference
                   };
               }).toList();
           });
@@ -53,6 +66,8 @@ class _CartPageState extends State<CartPage> {
               items = [];
             });
         });
+
+
     });
   }
 
@@ -74,6 +89,25 @@ class _CartPageState extends State<CartPage> {
         "count": item["count"] - 1
       });
     else item["ref"].delete();
+  }
+
+  void createTransaction(Map<String, dynamic> data) {
+    if(orderRef != null) {
+      data["order_date"] = DateTime.now();
+      data["order_status"] = "Processing";
+      Firestore.instance.collectionGroup("orders").getDocuments().then((value){
+        data["order_id"] = value.documents.length + 1;
+        orderRef.add(data).then((value){
+          if (cartList != null){
+            var batch = Firestore.instance.batch();
+            for (DocumentSnapshot doc in cartList) {
+              batch.delete(doc.reference);
+            }
+            batch.commit();
+          }
+        });
+      });
+    }
   }
 
   Widget createTransactionView(){
@@ -107,7 +141,12 @@ class _CartPageState extends State<CartPage> {
                 Container(
                   width: MediaQuery.of(context).size.width,
                   child: RaisedButton(
-                    onPressed: (){},
+                    onPressed: (){
+                      createTransaction({
+                        "order_amount" : subtotal + 20,
+                        "order_items" : items.map((e) => e["ref"]).toList()
+                      });
+                    },
                     color: Theme.of(context).primaryColor,
                     textColor: Theme.of(context).primaryTextTheme.button.color,
                     child: Text("Purchase"),
@@ -133,26 +172,27 @@ class _CartPageState extends State<CartPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(items[idx]["name"]),
+                    Text(items[idx]["name"], style: Theme.of(context).textTheme.headline6,),
                     Row(
                       children: [
-                        Text("\$${items[idx]["price"]}", style: Theme.of(context).textTheme.headline6),
+                        Text("\$${items[idx]["price"]}", style: Theme.of(context).textTheme.subtitle1),
                         Spacer(),
                         IconButton(
+                          iconSize: 32,
                           icon: Icon(
                             Icons.remove_circle, 
                             color: Theme.of(context).accentColor,
-                            size: 32,
                           ), 
                           onPressed: ()=>removeItem(items[idx])),
                         SizedBox(width: 10),
                         Text("${items[idx]["count"]}", style: Theme.of(context).textTheme.subtitle1,),
                         SizedBox(width: 10),
                         IconButton(
+                          iconSize: 32,
                           icon: Icon(
                             Icons.add_circle, 
                             color: Theme.of(context).accentColor,
-                            size: 32,
+
                           ), 
                           onPressed: ()=>addItem(items[idx])),
                       ]

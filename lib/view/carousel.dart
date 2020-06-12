@@ -13,9 +13,10 @@ class CarouselWidget extends StatefulWidget {
   final List<Carousel> data;
   final double height;
   final int selected;
+  final bool timer;
 
   CarouselWidget(
-      {Key key, @required this.data, this.selected = 0, this.height = 300})
+      {Key key, @required this.data, this.selected = 0, this.height = 300, this.timer = true})
       : super(key: key);
 
   @override
@@ -36,7 +37,8 @@ class _CarouselWidgetState extends State<CarouselWidget> {
     // TODO: implement initState
     super.initState();
 
-    startTimer();
+    if(widget.timer)
+      startTimer();
   }
 
   void startTimer(){
@@ -52,8 +54,10 @@ class _CarouselWidgetState extends State<CarouselWidget> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    if(widget.timer) {
     timer.cancel();
     timer = null;
+    }
   }
 
   @override
@@ -64,14 +68,18 @@ class _CarouselWidgetState extends State<CarouselWidget> {
           if (detail.velocity.pixelsPerSecond.dx > 0) {
             setState(() {
               selected = (selected - 1) % data.length;
+              if(widget.timer){
               timer.cancel();
               startTimer();
+              }
             });
           } else if (detail.velocity.pixelsPerSecond.dx < 0) {
             setState(() {
               selected = (selected + 1) % data.length;
+              if(widget.timer){
               timer.cancel();
               startTimer();
+              }
             });
           }
         },

@@ -3,8 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:plantstore/view/auth/reset_password.dart';
+import 'package:plantstore/view/pages/card_center_page.dart';
 import 'package:plantstore/view/pages/cart_page.dart';
 import 'package:plantstore/view/pages/item_detail_page.dart';
+import 'package:plantstore/view/pages/orders_page.dart';
 import 'package:plantstore/view/pages/pages.dart';
 import 'package:plantstore/view/pages/item_page.dart';
 import 'package:plantstore/view/auth/login/login_page.dart';
@@ -28,7 +30,9 @@ class MyApp extends StatelessWidget {
         "/search": (context) => SearchPage(),
         "/resetPassword": (context) => ResetPassword(),
         "/itemDetail": (context) => ItemDetailPage(),
-        "/cart": (context) => CartPage()
+        "/cart": (context) => CartPage(),
+        "/cardCenter": (context) => CardCenterPage(),
+        "/orders": (context) => OrdersPage(),
       };
     return MaterialApp(
       debugShowCheckedModeBanner: false,

@@ -81,7 +81,9 @@ class _PagesState extends State<Pages> {
                   width: width,
                   child: 
                     FlatButton(
-                    onPressed: (){}, 
+                    onPressed: (){
+                      Navigator.of(context).popAndPushNamed("/orders");
+                    }, 
                     child: 
                     Row(
                       children: [
@@ -94,7 +96,9 @@ class _PagesState extends State<Pages> {
                   width: width,
                   child: 
                     FlatButton(
-                    onPressed: (){}, 
+                    onPressed: (){
+                      Navigator.of(context).popAndPushNamed("/cardCenter");
+                    }, 
                     child: 
                     Row(
                       children: [
